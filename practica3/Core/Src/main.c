@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "API_delay.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -56,28 +56,7 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void delayInit(delay_t *delay, tick_t duration) {
-    delay->duration = duration;
-    delay->running = false;
-}
 
-bool_t delayRead(delay_t *delay) {
-    if (!delay->running) {
-        delay->startTime = HAL_GetTick();
-        delay->running = true;
-        return false;
-    }
-
-    if ((HAL_GetTick() - delay->startTime) >= delay->duration) {
-        delay->running = false;
-        return true;
-    }
-    return false;
-}
-
-void delayWrite(delay_t *delay, tick_t duration) {
-    delay->duration = duration;
-}
 /* USER CODE END 0 */
 
 /**
@@ -113,7 +92,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   delay_t myDelay;
-  delayInit(&myDelay, 100);
+  delayInit(&myDelay, 1000);
 
   /* USER CODE END 2 */
 
@@ -124,10 +103,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
 	  if (delayRead(&myDelay)) {
-	          HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	      }
+		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	  }
   }
   /* USER CODE END 3 */
 }
