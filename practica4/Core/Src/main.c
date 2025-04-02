@@ -18,7 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "API_delay.h"
+#include "API_debounce.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -56,28 +57,7 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void delayInit(delay_t *delay, tick_t duration) {
-    delay->duration = duration;
-    delay->running = false;
-}
 
-bool_t delayRead(delay_t *delay) {
-    if (!delay->running) {
-        delay->startTime = HAL_GetTick();
-        delay->running = true;
-        return false;
-    }
-
-    if ((HAL_GetTick() - delay->startTime) >= delay->duration) {
-        delay->running = false;
-        return true;
-    }
-    return false;
-}
-
-void delayWrite(delay_t *delay, tick_t duration) {
-    delay->duration = duration;
-}
 /* USER CODE END 0 */
 
 /**
@@ -112,14 +92,11 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  delay_t myDelay;
-  //delayInit(&myDelay, 100);		//punto 2
-  const tick_t pattern[] = {1000, 200, 100};
-  const uint8_t repetitions[] = {5, 5, 5};
-  uint8_t patternIndex = 0;
-  uint8_t count = 0;
+  static delay_t myDelay;
+  static tick_t blinkDuration = 100;
 
-  delayInit(&myDelay, pattern[patternIndex] / 2);
+  delayInit(&myDelay, 100);
+  debounceFSM_init();
 
   /* USER CODE END 2 */
 
@@ -130,15 +107,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  debounceFSM_update();
+
+	  if (readKey()) {
+		  blinkDuration = (blinkDuration == 100) ? 500 : 100;
+		  delayWrite(&myDelay, blinkDuration);
+	  }
 
 	  if (delayRead(&myDelay)) {
-	          HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	          if (++count >= (repetitions[patternIndex] * 2)) {
-	        	  count = 0;
-	        	  patternIndex = (patternIndex + 1) % (sizeof(pattern) / sizeof(pattern[0]));
-	        	  delayWrite(&myDelay, pattern[patternIndex] / 2);
-	          }
-	      }
+		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	  }
   }
   /* USER CODE END 3 */
 }

@@ -92,7 +92,13 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   delay_t myDelay;
-  delayInit(&myDelay, 1000);
+  //delayInit(&myDelay, 100);		//punto 2
+  const tick_t pattern[] = {1000, 200, 100};
+  const uint8_t repetitions[] = {5, 5, 5};
+  uint8_t patternIndex = 0, count = 0;
+
+  delayInit(&myDelay, pattern[patternIndex] / 2);
+
 
   /* USER CODE END 2 */
 
@@ -105,6 +111,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  if (delayRead(&myDelay)) {
 		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		  if (++count >= (repetitions[patternIndex] * 2)) {
+			  count = 0;
+			  patternIndex = (patternIndex + 1) % (sizeof(pattern) / sizeof(pattern[0]));
+			  delayWrite(&myDelay, pattern[patternIndex] / 2);
+		  }
 	  }
   }
   /* USER CODE END 3 */
