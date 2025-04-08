@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "API_delay.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -36,11 +36,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define TIEMPO_1_SEGUNDO 1000
-#define TIEMPO_200_MS 200
-#define TIEMPO_100_MS 100
-#define LED_PIN LD2_Pin
-#define LED_PORT LD2_GPIO_Port
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -60,30 +56,6 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void delayInit(delay_t *delay, tick_t duration) {
-	delay->duration = duration;
-	delay->running = false;
-}
-
-bool_t delayRead(delay_t *delay){
-	if (delay->running == false) {
-		delay->startTime = HAL_GetTick();
-		delay->running = true;
-		return false;
-	}
-
-	if (HAL_GetTick() - delay->startTime >= delay->duration) {
-		delay->running = false;
-		return true;
-	}
-
-	return false;
-}
-
-delayWrite(delay_t *delay, tick_t duration) {
-	delay->duration = duration;
-	delay->running = false;
-}
 
 /* USER CODE END 0 */
 
@@ -119,11 +91,12 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  delay_t miDelay;
-  uint32_t tiempos[] = {TIEMPO_1_SEGUNDO, TIEMPO_200_MS, TIEMPO_100_MS};
-  uint8_t cicloTiempoActual = 0;
-  uint8_t tiempoArray = 0;
-  delayInit(&miDelay, tiempos[0]/2);
+  delay_t myDelay;
+  //delayInit(&myDelay, 1000);
+  const uint32_t tiempos[] = {500, 100, 100, 1000};
+  uint8_t arregloTiempos = 0;
+  uint8_t ciclo = 0;
+  delayInit(&myDelay, tiempos[arregloTiempos] / 2);
 
   /* USER CODE END 2 */
 
@@ -134,23 +107,23 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (delayRead(&miDelay)) {
-		  HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
-		  cicloTiempoActual++;
+	  if (delayRead(&myDelay) == true) {
+		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		  ciclo++;
 
-		  if (cicloTiempoActual >= 10) {
-			 cicloTiempoActual = 0;
-			 tiempoArray++;
+		  if (ciclo >= 2) {
+			  ciclo = 0;
+			  arregloTiempos++;
 
-			 if (tiempoArray >= 3) {
-				 tiempoArray = 0;
-			 }
-
-			 delayWrite(&miDelay, tiempos[tiempoArray]/2);
+			  if (arregloTiempos >= 4) {
+				  arregloTiempos = 0;
+			  }
 		  }
 
+		  if (delayIsRunning(&myDelay) == false) {
+			  delayWrite(&myDelay, tiempos[arregloTiempos] / 2);
+		  }
 	  }
-
   }
   /* USER CODE END 3 */
 }
