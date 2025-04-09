@@ -36,7 +36,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define TIEMPO_500_MS 500
+#define TIEMPO_100_MS 100
+#define TIEMPO_1_SEGUNDO 1000
+#define LED_PORT LD2_GPIO_Port
+#define LED_PIN LD2_Pin
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -93,7 +97,7 @@ int main(void)
 
   delay_t myDelay;
   //delayInit(&myDelay, 1000);
-  const uint32_t tiempos[] = {500, 100, 100, 1000};
+  const uint32_t tiempos[] = {TIEMPO_500_MS, TIEMPO_100_MS, TIEMPO_100_MS, TIEMPO_1_SEGUNDO};
   uint8_t arregloTiempos = 0;
   uint8_t ciclo = 0;
   delayInit(&myDelay, tiempos[arregloTiempos] / 2);
@@ -108,7 +112,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  if (delayRead(&myDelay) == true) {
-		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		  HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
 		  ciclo++;
 
 		  if (ciclo >= 2) {

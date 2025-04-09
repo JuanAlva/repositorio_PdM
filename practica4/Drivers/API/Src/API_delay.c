@@ -13,7 +13,7 @@ void delayInit(delay_t *delay, tick_t duration) {
 }
 
 bool_t delayRead(delay_t *delay){
-	if(!delay->running){
+	if(delay->running == false){
 		delay->startTime = HAL_GetTick();
 		delay->running = true;
 		return false;
@@ -29,4 +29,9 @@ bool_t delayRead(delay_t *delay){
 
 void delayWrite(delay_t *delay, tick_t duration) {
 	delay->duration = duration;
+	delay->running = false;
+}
+
+bool_t delayIsRunning(delay_t *delay){
+	return delay->running;
 }

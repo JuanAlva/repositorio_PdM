@@ -8,24 +8,17 @@
 #ifndef API_INC_API_DEBOUNCE_H_
 #define API_INC_API_DEBOUNCE_H_
 
+#include <stm32f4xx_hal.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "API_delay.h"
-#include "stm32f4xx_hal.h"
 
-typedef enum {
-	BUTTON_UP,
-	BUTTON_FALLING,
-	BUTTON_DOWN,
-	BUTTON_RAISING
-} debounceState;
+typedef bool bool_t;
 
-void debounceFSM_init();
-void debounceFSM_update();
+void debounceFSM_init(void);
+void debounceFSM_update(void);
+void buttonPressed(void);
+void buttonReleased(void);
 
-void buttonPressed();
-void buttonReleased();
-
-bool_t readKey();
+bool_t readKey(void);
 
 #endif /* API_INC_API_DEBOUNCE_H_ */

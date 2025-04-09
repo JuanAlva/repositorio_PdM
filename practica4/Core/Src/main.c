@@ -37,7 +37,12 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define TIEMPO_500_MS 500
+#define TIEMPO_100_MS 100
+#define BUTTON_PIN GPIO_PIN_13
+#define BUTTON_PORT GPIOC
+#define LED_PIN GPIO_PIN_5
+#define LED_PORT GPIOA
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -92,10 +97,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  static delay_t myDelay;
-  static tick_t blinkDuration = 100;
+  delay_t debounceDelay;
 
-  delayInit(&myDelay, 100);
+  uint32_t currentDelay = TIEMPO_100_MS;
+  delayInit(&debounceDelay, TIEMPO_100_MS);
   debounceFSM_init();
 
   /* USER CODE END 2 */
@@ -109,13 +114,21 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  debounceFSM_update();
 
-	  if (readKey()) {
-		  blinkDuration = (blinkDuration == 100) ? 500 : 100;
-		  delayWrite(&myDelay, blinkDuration);
-	  }
+	  if (delayRead(&debounceDelay) == true) {
+		  HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
 
-	  if (delayRead(&myDelay)) {
-		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		  if (readKey() == true) {
+			  if (currentDelay == TIEMPO_100_MS) {
+				  currentDelay = TIEMPO_500_MS;
+			  }
+			  else {
+				  currentDelay = TIEMPO_100_MS;
+			  }
+		  }
+
+		  if (delayIsRunning(&debounceDelay) == false) {
+			  delayWrite(&debounceDelay, currentDelay);
+		  }
 	  }
   }
   /* USER CODE END 3 */
