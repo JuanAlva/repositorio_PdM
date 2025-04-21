@@ -47,7 +47,6 @@ void debounceFSM_update() {
 					// buttonPressed();
 					keyPressed = true;
 					edge = true;
-					uartSendString((uint8_t *)"Flanco descendente detectado\r\n");
 					currentState = BUTTON_DOWN;
 
 				}
@@ -71,7 +70,6 @@ void debounceFSM_update() {
 				if (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN) == GPIO_PIN_SET) {
 					// buttonReleased();
 					edge = false;
-					uartSendString((uint8_t *)"Flanco ascendente detectado\r\n");
 					currentState = BUTTON_UP;
 				}
 				else {

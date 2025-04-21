@@ -20,7 +20,10 @@
 #include "main.h"
 #include "API_delay.h"
 #include "API_debounce.h"
-#include "API_uart.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -38,11 +41,25 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define TIEMPO_500_MS 500
+#define TIEMPO_100_MS 100
+#define BUTTON_PIN GPIO_PIN_13
+#define BUTTON_PORT GPIOC
+#define LED_PIN GPIO_PIN_5
+#define LED_PORT GPIOA
+
+#define PROMPT	"\r\nEnter an option: "
+#define WELCOME_MSG  "\r\nWelcome to the Nucleo management console\r"
+#define MAIN_MENU  "\r\nSelect the option you are interested in:\r" \
+                   "\r\n  1. Toggle LD2 LED\r"						\
+                   "\r\n  2. Read USER BUTTON status\r"             \
+                   "\r\n  3. Clear screen and print this message"
+
 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-//UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -51,14 +68,16 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-//static void MX_USART2_UART_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void printWelcomeMessage(void);
+uint8_t readUserInput(void);
+uint8_t processUserInput(uint8_t opt);
 /* USER CODE END 0 */
 
 /**
@@ -69,7 +88,7 @@ int main(void)
 {
 
 	/* USER CODE BEGIN 1 */
-	char opt = 0;
+	uint8_t opt = 0;
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -90,11 +109,11 @@ int main(void)
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-	//MX_USART2_UART_Init();
+	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 
-	uartInit();
-	debounceFSM_init();
+printMessage:
+	printWelcomeMessage();
 
 	/* USER CODE END 2 */
 
@@ -105,12 +124,12 @@ int main(void)
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		debounceFSM_update();
-		/*opt = readUserInput();
-		if (opt == "c")
+		opt = readUserInput();
+		processUserInput(opt);
+		if (opt == 3)
 		{
-			uartInit();
-		}*/
+			goto printMessage;
+		}
 	}
 	/* USER CODE END 3 */
 }
@@ -167,36 +186,33 @@ void SystemClock_Config(void)
  * @param None
  * @retval None
  */
+static void MX_USART2_UART_Init(void)
+{
 
-//static void MX_USART2_UART_Init(void)
-//{
+	/* USER CODE BEGIN USART2_Init 0 */
 
-/* USER CODE BEGIN USART2_Init 0 */
+	/* USER CODE END USART2_Init 0 */
 
-/* USER CODE END USART2_Init 0 */
+	/* USER CODE BEGIN USART2_Init 1 */
 
-/* USER CODE BEGIN USART2_Init 1 */
+	/* USER CODE END USART2_Init 1 */
+	huart2.Instance = USART2;
+	huart2.Init.BaudRate = 115200;
+	huart2.Init.WordLength = UART_WORDLENGTH_8B;
+	huart2.Init.StopBits = UART_STOPBITS_1;
+	huart2.Init.Parity = UART_PARITY_NONE;
+	huart2.Init.Mode = UART_MODE_TX_RX;
+	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart2) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	/* USER CODE BEGIN USART2_Init 2 */
 
-/* USER CODE END USART2_Init 1 */
-/*huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
- */
-/* USER CODE BEGIN USART2_Init 2 */
+	/* USER CODE END USART2_Init 2 */
 
-/* USER CODE END USART2_Init 2 */
-
-//}
-
+}
 
 /**
  * @brief GPIO Initialization Function
@@ -238,7 +254,49 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void printWelcomeMessage(void)
+{
+	HAL_UART_Transmit(&huart2, (uint8_t*)"\033[0;0H", strlen("\033[0;0H"), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart2, (uint8_t*)"\033[2J", strlen("\033[2J"), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart2, (uint8_t*)WELCOME_MSG, strlen(WELCOME_MSG), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart2, (uint8_t*)MAIN_MENU, strlen(MAIN_MENU), HAL_MAX_DELAY);
+}
 
+uint8_t readUserInput(void)
+{
+	char readBuf[1];
+
+	HAL_UART_Transmit(&huart2, (uint8_t*)PROMPT, strlen(PROMPT), HAL_MAX_DELAY);
+	HAL_UART_Receive(&huart2, (uint8_t*)readBuf, 1, HAL_MAX_DELAY);
+
+	return atoi(readBuf);
+}
+
+uint8_t processUserInput(uint8_t opt)
+{
+	char msg[30];
+
+	    if(!opt || opt > 3) return 0;  // Si el valor no es 1, 2 o 3, sale sin hacer nada.
+
+	    sprintf(msg, "%d", opt);       // Convierte el número ingresado a texto.
+	    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY); // Lo imprime.
+
+	    switch(opt) {
+	        case 1:
+	            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Conmuta el LED conectado al pin PA5.
+	            break;
+	        case 2:
+	            sprintf(msg, "\r\nUSER BUTTON status: %s",
+	                //HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET ? "PRESSED" : "RELEASED");
+	            	HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) == GPIO_PIN_SET ? "ENCENDIDO" : "APAGADO");
+	            HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY); // Muestra el estado del botón.
+	            break;
+	        case 3:
+	            return 2; // Sale del switch con retorno especial, pero en este caso no se usa.
+	    };
+
+	    return 1;
+}
 /* USER CODE END 4 */
 
 /**
