@@ -8,11 +8,15 @@
 #ifndef API_INC_API_UART_H_
 #define API_INC_API_UART_H_
 
-#include "stm32f4xx_hal.h"
-#include "API_i2c.h"
 #include <stdint.h>
-#include <stdio.h>
+#include <stdbool.h>
 
-void UART_SendGyroData(UART_HandleTypeDef *huart, MPU6050_GyroData *data);
+typedef bool bool_t;
+
+bool_t uartInit(void);
+void uartSendString(uint8_t *string);
+void uartSendStringSize(uint8_t *string, uint16_t size);
+void uartReceiveStringSize(uint8_t *pstring, uint16_t size);
+char readUserInput(void);
 
 #endif /* API_INC_API_UART_H_ */

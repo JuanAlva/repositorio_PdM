@@ -10,16 +10,10 @@
 
 #include "stm32f4xx_hal.h"
 
-// Inicializa la comunicación con el módulo Bluetooth
-void Bluetooth_Init(void);
+void bluetoothInit(void);
 
-// Envia un mensaje de texto al dispositivo Bluetooth
-void Bluetooth_SendMessage(char *message);
+void bluetoothSendMessage(char *message);
 
-// Recibe un mensaje de texto desde el dispositivo Bluetooth
-int Bluetooth_ReceiveMessage(char *buffer, int buffer_size);
-
-// Configura parámetros específicos del módulo (como velocidad de transmisión)
-//void Bluetooth_SetConfig(uint32_t baud_rate);
+int bluetoothReceiveMessage(char *buffer, int buffer_size);
 
 #endif /* INC_API_BLUETOOTH_H_ */
