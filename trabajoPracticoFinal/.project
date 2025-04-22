@@ -106,9 +106,39 @@
 			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/ccsbcs.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Middlewares/Third_Party/FatFs/src/option/ccsbcs.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/diskio.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Middlewares/Third_Party/FatFs/src/diskio.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/ff.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Middlewares/Third_Party/FatFs/src/ff.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/ff_gen_drv.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/syscall.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.1/Middlewares/Third_Party/FatFs/src/option/syscall.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
