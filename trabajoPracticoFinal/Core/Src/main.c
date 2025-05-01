@@ -21,11 +21,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "API_delay.h"
 #include "API_debounce.h"
 #include "API_uart.h"
-#include "API_i2c.h"
 #include "API_bluetooth.h"
+#include "API_mpu6050.h"
+#include "API_lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,7 +67,15 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char buffer[128];
+typedef enum {
+    ESTADO_ENVIO_LCD_BLUETOOTH,
+    ESTADO_SOLO_LCD
+} estadoFSM_t;
+
+estadoFSM_t estadoActual = ESTADO_ENVIO_LCD_BLUETOOTH;
+
+void actualizarEstadoFSM(char *buffer);
+
 /* USER CODE END 0 */
 
 /**
@@ -76,7 +86,11 @@ int main(void)
 {
 
 	/* USER CODE BEGIN 1 */
+	SensorMPU6050 sensor;
+	int16_t gyroX, gyroY, gyroZ;
 
+	char buffer[64];
+	char buffer2[17];
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -108,15 +122,21 @@ int main(void)
 
 	bluetoothInit();
 
-	bluetoothSendMessage("Proyecto_Practico_Final_PCSE");
-
-	GyroscopeData gyro;
-
-	i2cInit(&hi2c1);
+	bluetoothSendMessage("Proyecto_Practico_Final\n\r");
 
 	delay_t intervalDelay;
 
-	delayInit(&intervalDelay, 2000);
+	delayInit(&intervalDelay, 1000);
+
+	sensor.hi2c = &hi2c1;
+	sensor.address = 0x68 << 1;
+
+	sensorInit(&sensor);
+
+	initLcd();
+	sacaTextoLcd((uint8_t *)"Proyecto_Practico");
+	posCaracLLcd(0);
+	sacaTextoLcd((uint8_t *)"Final");
 
 	/* USER CODE END 2 */
 
@@ -128,22 +148,25 @@ int main(void)
 
 		/* USER CODE BEGIN 3 */
 
-		debounceFSM_update();
+		//debounceFSM_update();
 
-		if (delayRead(&intervalDelay) == true) {
-			if (i2cRead(&hi2c1, &gyro) == HAL_OK) {
-				snprintf(buffer, sizeof(buffer), "\n\rGYRO: X=%d Y=%d Z=%d\r\n", gyro.gyro_x, gyro.gyro_y, gyro.gyro_z);
+		actualizarEstadoFSM(buffer);
 
-			}
-			uartSendString((uint8_t *)buffer);
-			bluetoothSendMessage((uint8_t *)buffer);
+		sensorReadGyroscopeX(&sensor, &gyroX);
+		sensorReadGyroscopeY(&sensor, &gyroY);
+		sensorReadGyroscopeZ(&sensor, &gyroZ);
 
-			if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
-				bluetoothSendMessage("boton presionado");
-			}
-			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-		}
+		snprintf(buffer, sizeof(buffer), "Gyro: X=%d Y=%d Z=%d\n\r", gyroX, gyroY, gyroZ);
 
+		posCaracHLcd(0);
+		sprintf(buffer2, "X:%d Y:%d    ", gyroX, gyroY);
+		sacaTextoLcd((uint8_t*)buffer2);
+
+		posCaracLLcd(0);
+		sprintf(buffer2, "Z:%d       ", gyroZ);
+		sacaTextoLcd((uint8_t*)buffer2);
+
+		HAL_Delay(1000);
 	}
 	/* USER CODE END 3 */
 }
@@ -337,6 +360,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void actualizarEstadoFSM(char *buffer) {
+    debounceFSM_update();
+
+    switch(estadoActual){
+    case ESTADO_ENVIO_LCD_BLUETOOTH:
+    	bluetoothSendMessage((uint8_t*)buffer);
+    	if (readKey() == true) {
+    		estadoActual = ESTADO_SOLO_LCD;
+    	}
+    	break;
+    case ESTADO_SOLO_LCD:
+    	if (readKey() == true) {
+    		estadoActual = ESTADO_ENVIO_LCD_BLUETOOTH;
+    	}
+    }
+}
+
 
 /* USER CODE END 4 */
 

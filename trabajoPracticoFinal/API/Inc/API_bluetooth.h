@@ -11,9 +11,8 @@
 #include "stm32f4xx_hal.h"
 
 void bluetoothInit(void);
-
 void bluetoothSendMessage(char *message);
-
 int bluetoothReceiveMessage(char *buffer, int buffer_size);
 
 #endif /* INC_API_BLUETOOTH_H_ */
+

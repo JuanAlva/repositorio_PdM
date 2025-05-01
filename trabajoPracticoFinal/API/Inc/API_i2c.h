@@ -10,6 +10,7 @@
 
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
+#include <port.h>
 
 #define GYRO_ADDR 0x68 << 1 // Dirección I2C del MPU6050
 
