@@ -89,8 +89,8 @@ int main(void)
 	SensorMPU6050 sensor;
 	int16_t gyroX, gyroY, gyroZ;
 
-	char buffer[64];
-	char buffer2[17];
+	static char buffer[64];
+	static char buffer2[17];
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
