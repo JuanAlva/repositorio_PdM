@@ -74,7 +74,7 @@ typedef enum {
 
 estadoFSM_t estadoActual = ESTADO_ENVIO_LCD_BLUETOOTH;
 
-void actualizarEstadoFSM(char *buffer);
+void actualizarEstadoMEF(char *buffer);
 
 /* USER CODE END 0 */
 
@@ -150,7 +150,7 @@ int main(void)
 
 		//debounceFSM_update();
 
-		actualizarEstadoFSM(buffer);
+		actualizarEstadoMEF(buffer);
 
 		sensorReadGyroscopeX(&sensor, &gyroX);
 		sensorReadGyroscopeY(&sensor, &gyroY);
@@ -360,7 +360,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void actualizarEstadoFSM(char *buffer) {
+void actualizarEstadoMEF(char *buffer) {
     debounceFSM_update();
 
     switch(estadoActual){
